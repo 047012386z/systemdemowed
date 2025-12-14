@@ -4,133 +4,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Keeper</title>
-    <!-- Fonts -->
+    <title>Modern English Quiz</title>
+    <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Styles -->
-    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
-
-    <header class="app-header">
-        <div class="logo">
-            <i class="fa-solid fa-database"></i>
-            <h1>Data Keeper</h1>
-        </div>
-        <div class="controls">
-            <!-- Search or other controls could go here -->
-        </div>
-    </header>
-
-    <main class="container">
-        <div class="topics-grid" id="topicsGrid">
-            <!-- Topics will be injected here by JS -->
-        </div>
-
-        <div class="empty-state" id="emptyState" style="display: none;">
-            <i class="fa-regular fa-folder-open"></i>
-            <p>No topics yet. Create one to get started!</p>
-        </div>
-    </main>
-
-    <!-- FAB -->
-    <button class="fab" id="createTopicBtn" title="Create New Topic">
-        <i class="fa-solid fa-plus"></i>
-    </button>
-
-    <!-- Modals -->
-    <div class="modal-overlay" id="modalOverlay"></div>
-
-    <!-- Create Topic Modal -->
-    <div class="modal" id="topicModal">
-        <div class="modal-header">
-            <h2>New Topic</h2>
-            <button class="close-btn" data-close="topicModal"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="modal-body">
-            <div class="form-group">
-                <label for="topicName">Topic Name</label>
-                <input type="text" id="topicName" placeholder="e.g., Work Project, Ideas...">
-            </div>
-            <div class="form-group">
-                <label for="topicDesc">Description (Optional)</label>
-                <textarea id="topicDesc" rows="3" placeholder="Short description..."></textarea>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-secondary" data-close="topicModal">Cancel</button>
-            <button class="btn btn-primary" id="saveTopicBtn">Create Topic</button>
-        </div>
+    <div class="background-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <div class="blob blob-4"></div>
     </div>
 
-    <!-- View Topic Modal (Full Screen-ish) -->
-    <div class="modal modal-lg" id="viewModal">
-        <div class="modal-header">
-            <h2 id="viewTopicTitle">Topic Title</h2>
-            <div class="view-controls">
-                <button class="btn-icon danger" id="deleteTopicBtn" title="Delete Topic"><i
-                        class="fa-solid fa-trash"></i></button>
-                <button class="close-btn" data-close="viewModal"><i class="fa-solid fa-xmark"></i></button>
-            </div>
+    <div class="container">
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <h1 class="title">English Proficiency<br><span class="highlight">Test</span></h1>
+            <p class="description">Challenge yourself with our modern interactive English quiz. Are you ready?</p>
+            <button id="start-btn" class="btn primary-btn">Start Quiz</button>
         </div>
-        <div class="modal-subheader">
-            <p id="viewTopicDesc">Topic description goes here...</p>
-        </div>
-        <div class="modal-body scrollable">
-            <div class="content-list" id="contentList">
-                <!-- Content items injected here -->
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-primary" id="addContentBtn"><i class="fa-solid fa-plus"></i> Add Content</button>
-        </div>
-    </div>
 
-    <!-- Add Content Modal -->
-    <div class="modal" id="contentModal">
-        <div class="modal-header">
-            <h2>Add Content</h2>
-            <button class="close-btn" data-close="contentModal"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="modal-body">
-            <div class="tabs">
-                <button class="tab-btn active" data-tab="text">Text</button>
-                <button class="tab-btn" data-tab="file">File</button>
-            </div>
+        <!-- Quiz Screen -->
+        <div id="quiz-screen" class="screen">
+            <div class="quiz-header">
+                <div class="header-top">
+                    <div id="timer" class="timer">15:00</div>
+                    <div class="stats">
+                        <span id="question-count">Question 1/10</span>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress" id="progress"></div>
+                </div>
 
-            <div class="tab-content active" id="tab-text">
-                <div class="form-group">
-                    <label for="contentText">Content</label>
-                    <textarea id="contentText" rows="5" placeholder="Write something..."></textarea>
+                <div class="question-card">
+                    <h2 id="question-text">Question goes here?</h2>
+                    <div class="options-container" id="options-container">
+                        <!-- Options will be generated here -->
+                    </div>
+
+                    <div class="navigation-controls">
+                        <button id="prev-btn" class="btn nav-btn" disabled>Previous</button>
+                        <button id="next-btn" class="btn nav-btn">Next</button>
+                    </div>
                 </div>
             </div>
 
-            <div class="tab-content" id="tab-file">
-                <div class="file-drop-area" id="fileDropArea">
-                    <i class="fa-solid fa-cloud-arrow-up"></i>
-                    <p>Click or Drag file here</p>
-                    <input type="file" id="fileInput" hidden>
-                    <div id="filePreview" class="file-preview"></div>
-                </div>
-
-                <div class="form-group" style="margin-top: 1rem;">
-                    <label for="fileDesc">File Description (Optional)</label>
-                    <textarea id="fileDesc" rows="2" placeholder="Add details about this file..."></textarea>
+            <!-- Result Screen -->
+            <div id="result-screen" class="screen">
+                <div class="result-card">
+                    <div class="score-circle">
+                        <span id="final-score">0</span>
+                        <span class="total">/ 10</span>
+                    </div>
+                    <h2>Quiz Completed!</h2>
+                    <p id="feedback-text">Good job!</p>
+                    <div class="result-buttons">
+                        <button id="review-btn" class="btn secondary-btn">Review Answers</button>
+                        <button id="restart-btn" class="btn primary-btn">Try Again</button>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-secondary" data-close="contentModal">Cancel</button>
-            <button class="btn btn-primary" id="saveContentBtn">Save</button>
-        </div>
-    </div>
 
-    <script src="app.js"></script>
+            <!-- Review Screen -->
+            <div id="review-screen" class="screen">
+                <h2 class="review-title">Review Answers</h2>
+                <div id="review-container">
+                    <!-- Review items will be generated here -->
+                </div>
+                <button id="back-to-result-btn" class="btn primary-btn sticky-btn">Back to Result</button>
+            </div>
+        </div>
+
+        <script src="script.js"></script>
 </body>
 
 </html>
