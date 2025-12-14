@@ -16,7 +16,7 @@ const questions = [
         question: "3. Choose the correct synonym for 'Happy'.",
         options: ["Sad", "Angry", "Joyful", "Bored"],
         answer: 2,
-        explanation: "'Joyful' means feeling or expressing great pleasure and happiness, making it a synonym for 'Hatppy'."
+        explanation: "'Joyful' means feeling or expressing great pleasure and happiness, making it a synonym for 'Happy'."
     },
     {
         question: "4. I have been living here ____ 2010.",
@@ -46,7 +46,7 @@ const questions = [
         question: "8. Can you ____ me a favor?",
         options: ["make", "do", "give", "take"],
         answer: 1,
-        explanation: " The correct collocation is to 'do a favor'. We don't say 'make a favor'."
+        explanation: "The correct collocation is to 'do a favor'. We don't say 'make a favor'."
     },
     {
         question: "9. There isn't ____ milk left in the fridge.",
@@ -186,20 +186,25 @@ const questions = [
     }
 ];
 
+// Initialize State
 let currentQuestionIndex = 0;
-let userAnswers = new Array(questions.length).fill(null); // Store user answers
+let userAnswers = new Array(questions.length).fill(null);
+const TIME_LIMIT = 15 * 60; // 15 minutes
+let timeLeft = TIME_LIMIT;
+let timerInterval;
 
+// DOM Elements
 const startScreen = document.getElementById('start-screen');
 const quizScreen = document.getElementById('quiz-screen');
 const resultScreen = document.getElementById('result-screen');
-const reviewScreen = document.getElementById('review-screen'); // New
+const reviewScreen = document.getElementById('review-screen');
 
 const startBtn = document.getElementById('start-btn');
 const restartBtn = document.getElementById('restart-btn');
 const prevBtn = document.getElementById('prev-btn');
 const nextBtn = document.getElementById('next-btn');
-const reviewBtn = document.getElementById('review-btn'); // New
-const backToResultBtn = document.getElementById('back-to-result-btn'); // New
+const reviewBtn = document.getElementById('review-btn');
+const backToResultBtn = document.getElementById('back-to-result-btn');
 
 const questionText = document.getElementById('question-text');
 const optionsContainer = document.getElementById('options-container');
@@ -209,21 +214,19 @@ const questionCount = document.getElementById('question-count');
 const finalScore = document.getElementById('final-score');
 const feedbackText = document.getElementById('feedback-text');
 const totalQuestionsSpan = document.querySelector('.score-circle .total');
-const reviewContainer = document.getElementById('review-container'); // New
-
-
+const reviewContainer = document.getElementById('review-container');
 const timerDisplay = document.getElementById('timer');
 
-let timerInterval;
-const TIME_LIMIT = 15 * 60; // 15 minutes in seconds
-let timeLeft = TIME_LIMIT;
 
+// Event Listeners
 startBtn.addEventListener('click', startQuiz);
+
 restartBtn.addEventListener('click', () => {
-    // Reset state
     currentQuestionIndex = 0;
     userAnswers.fill(null);
     timeLeft = TIME_LIMIT;
+
+    // Hide all screens except start (or directly restart quiz)
     resultScreen.classList.remove('active');
     reviewScreen.classList.remove('active');
     startQuiz();
@@ -231,25 +234,29 @@ restartBtn.addEventListener('click', () => {
 
 prevBtn.addEventListener('click', prevQuestion);
 nextBtn.addEventListener('click', nextQuestion);
-
-// New Event Listeners
 reviewBtn.addEventListener('click', showReview);
 backToResultBtn.addEventListener('click', () => {
     reviewScreen.classList.remove('active');
     resultScreen.classList.add('active');
 });
 
+// Functions
 function startQuiz() {
     startScreen.classList.remove('active');
     quizScreen.classList.add('active');
-    totalQuestionsSpan.textContent = `/ ${questions.length}`;
+
+    // Ensure total is set
+    if (totalQuestionsSpan) {
+        totalQuestionsSpan.textContent = `/ ${questions.length}`;
+    }
+
     loadQuestion();
     startTimer();
 }
 
 function startTimer() {
     clearInterval(timerInterval);
-    updateTimerDisplay(); // Show initial time immediately
+    updateTimerDisplay(); // Initial show
 
     timerInterval = setInterval(() => {
         timeLeft--;
@@ -257,26 +264,23 @@ function startTimer() {
 
         if (timeLeft <= 0) {
             clearInterval(timerInterval);
-            finishQuiz(); // Renamed showResults to finishQuiz to be clearer
+            finishQuiz();
         }
     }, 1000);
 }
 
 function updateTimerDisplay() {
+    if (!timerDisplay) return;
+
     const minutes = Math.floor(timeLeft / 60);
     const seconds = timeLeft % 60;
     timerDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 
-    if (timeLeft <= 60) { // Last minute warning
+    if (timeLeft <= 60) {
         timerDisplay.classList.add('warning');
     } else {
         timerDisplay.classList.remove('warning');
     }
-}
-
-function finishQuiz() {
-    clearInterval(timerInterval);
-    showResults();
 }
 
 function loadQuestion() {
@@ -284,7 +288,7 @@ function loadQuestion() {
     questionText.textContent = currentQuestion.question;
     questionCount.textContent = `Question ${currentQuestionIndex + 1}/${questions.length}`;
 
-    // Update progress bar
+    // Progress
     const progressPercent = ((currentQuestionIndex) / questions.length) * 100;
     progress.style.width = `${progressPercent}%`;
 
@@ -295,7 +299,7 @@ function loadQuestion() {
         button.classList.add('option-btn');
         button.textContent = option;
 
-        // Restore previous selection if exists
+        // Restore state
         if (userAnswers[currentQuestionIndex] === index) {
             button.classList.add('selected');
         }
@@ -310,7 +314,7 @@ function loadQuestion() {
 function selectOption(index) {
     userAnswers[currentQuestionIndex] = index;
 
-    // Visual feedback for selection
+    // UI Update
     const buttons = optionsContainer.querySelectorAll('.option-btn');
     buttons.forEach((btn, i) => {
         if (i === index) {
@@ -329,7 +333,7 @@ function prevQuestion() {
 }
 
 function nextQuestion() {
-    // Check if an answer is selected
+    // Require answer
     if (userAnswers[currentQuestionIndex] === null) {
         alert("Please select an answer before proceeding.");
         return;
@@ -343,13 +347,9 @@ function nextQuestion() {
     }
 }
 
-function updateNavigationButtons() {
-    prevBtn.disabled = currentQuestionIndex === 0;
-    if (currentQuestionIndex === questions.length - 1) {
-        nextBtn.textContent = "Finish";
-    } else {
-        nextBtn.textContent = "Next";
-    }
+function finishQuiz() {
+    clearInterval(timerInterval);
+    showResults();
 }
 
 function showResults() {
@@ -358,7 +358,7 @@ function showResults() {
 
     let score = 0;
     userAnswers.forEach((ans, index) => {
-        if (ans === questions[index].answer) {
+        if (questions[index] && ans === questions[index].answer) {
             score++;
         }
     });
@@ -374,14 +374,19 @@ function showResults() {
     } else if (percentage >= 60) {
         feedbackText.textContent = "Good job! Keep practicing to reach the top. 😊";
     } else {
-        feedbackText.textContent = "Keep learning! Consistency is key. 💪";
+        feedbackText.textContent = "Don't give up! Keep practicing! 💪";
     }
+}
+
+function updateNavigationButtons() {
+    prevBtn.disabled = currentQuestionIndex === 0;
+    nextBtn.textContent = (currentQuestionIndex === questions.length - 1) ? "Finish" : "Next";
 }
 
 function showReview() {
     resultScreen.classList.remove('active');
     reviewScreen.classList.add('active');
-    reviewContainer.innerHTML = '';
+    reviewContainer.innerHTML = ''; // Clear previous
 
     questions.forEach((q, index) => {
         const userAns = userAnswers[index];
@@ -390,29 +395,32 @@ function showReview() {
         const item = document.createElement('div');
         item.classList.add('review-item');
 
-        let optionsHtml = '';
+        const questionDiv = document.createElement('div');
+        questionDiv.classList.add('review-question');
+        questionDiv.textContent = q.question;
+        item.appendChild(questionDiv);
+
+        const optionsDiv = document.createElement('div');
+        optionsDiv.classList.add('review-options');
+
         q.options.forEach((opt, optIndex) => {
-            let className = 'review-option';
+            const optDiv = document.createElement('div');
+            optDiv.classList.add('review-option');
+            optDiv.textContent = opt;
 
             if (optIndex === q.answer) {
-                className += ' correct';
+                optDiv.classList.add('correct');
             } else if (optIndex === userAns && !isCorrect) {
-                className += ' wrong';
+                optDiv.classList.add('wrong');
             }
-
-            optionsHtml += `<div class="${className}">${opt}</div>`;
+            optionsDiv.appendChild(optDiv);
         });
+        item.appendChild(optionsDiv);
 
-        item.innerHTML = `
-            <div class="review-question">${q.question}</div>
-            <div class="review-options">
-                ${optionsHtml}
-            </div>
-            <div class="explanation-box">
-                <h4>Explanation</h4>
-                <p>${q.explanation}</p>
-            </div>
-        `;
+        const explanationBox = document.createElement('div');
+        explanationBox.classList.add('explanation-box');
+        explanationBox.innerHTML = `<h4>Explanation</h4><p>${q.explanation}</p>`;
+        item.appendChild(explanationBox);
 
         reviewContainer.appendChild(item);
     });
